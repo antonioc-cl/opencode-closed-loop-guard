@@ -1,6 +1,6 @@
 {
   "name": "opencode-closed-loop-guard",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Closed-loop guard plugin for OpenCode (plan → build → validate → block until green)",
   "license": "MIT",
   "repository": {
@@ -19,9 +19,13 @@
   "exports": {
     ".": "./dist/index.js"
   },
+  "bin": {
+    "opencode-closed-loop-guard": "dist/cli.js"
+  },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "keywords": [
     "opencode",
