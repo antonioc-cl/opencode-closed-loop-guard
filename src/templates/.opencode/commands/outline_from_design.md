@@ -1,15 +1,27 @@
 ---
-description: Create a short phase outline (reorderable) from design. Saves to specs/outline-<topic>-<date>.md
-argument-hint: "specs/design-<topic>-<date>.md"
+description: Create a short phase outline (reorderable) from design. Saves to specs/<feature>/outline.md
+argument-hint: "--feature <feature-name>"
 allowed-tools: Read, Write, Glob
 model: haiku
 ---
 
 # Outline From Design (RPI Step 4)
 
-Use the design doc at: **$ARGUMENTS**
+Create phase outline for feature: **$ARGUMENTS**
 
-If no path is provided, ask the user for it and stop.
+## Parse Arguments
+
+Extract `--feature <name>` from `$ARGUMENTS`.
+
+If not provided, ask the user for the feature name and stop.
+
+---
+
+## Load Design
+
+Read the design file at: `specs/<feature>/design.md`
+
+If the file doesn't exist, tell the user to run `/design_from_research` first.
 
 ---
 
@@ -17,12 +29,6 @@ If no path is provided, ask the user for it and stop.
 - Outline only: phases + ordering.
 - No detailed steps, no tasks, no code.
 - Must be short (ideally 5-12 lines).
-
----
-
-## Load Design
-
-Read the design file at: `$ARGUMENTS`
 
 ---
 
@@ -49,7 +55,7 @@ Read the design file at: `$ARGUMENTS`
 
 ## Save
 
-Save as: `specs/outline-<kebab-topic>-<YYYYMMDD>.md`
+Save as: `specs/<feature>/outline.md`
 
 ---
 
@@ -58,5 +64,6 @@ Save as: `specs/outline-<kebab-topic>-<YYYYMMDD>.md`
 After saving, respond:
 
 ✅ Outline created
-File: `specs/outline-...md`
-Next: run `/plan_w_team "<your prompt>"` and include the outline/design/research docs as inputs.
+Feature: `<feature>`
+File: `specs/<feature>/outline.md`
+Next: run `/plan_w_team --feature <feature>`

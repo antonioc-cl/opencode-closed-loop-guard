@@ -1,15 +1,27 @@
 ---
-description: Answer research questions with verifiable facts only. Saves to specs/research-<topic>-<date>.md
-argument-hint: "specs/rq-<topic>-<date>.md"
+description: Answer research questions with verifiable facts only. Saves to specs/<feature>/research.md
+argument-hint: "--feature <feature-name>"
 allowed-tools: Read, Glob, Grep, Write, Bash(git status:*), Bash(git diff:*)
 model: sonnet
 ---
 
 # Research From Questions (RPI Step 2)
 
-Use the question file at: **$ARGUMENTS**
+Answer research questions for feature: **$ARGUMENTS**
 
-If no path is provided, ask the user for it and stop.
+## Parse Arguments
+
+Extract `--feature <name>` from `$ARGUMENTS`.
+
+If not provided, ask the user for the feature name and stop.
+
+---
+
+## Load Questions
+
+Read the questions file at: `specs/<feature>/rq.md`
+
+If the file doesn't exist, tell the user to run `/research_questions` first.
 
 ---
 
@@ -19,12 +31,6 @@ If no path is provided, ask the user for it and stop.
   - file paths + symbols
   - command outputs if used
 - If unknown: write "Unknown" and what you would need to know.
-
----
-
-## Load Questions
-
-Read the questions file at: `$ARGUMENTS`
 
 ---
 
@@ -65,7 +71,7 @@ Read the questions file at: `$ARGUMENTS`
 
 ## Save
 
-Save as: `specs/research-<kebab-topic>-<YYYYMMDD>.md`
+Save as: `specs/<feature>/research.md`
 
 ---
 
@@ -74,5 +80,6 @@ Save as: `specs/research-<kebab-topic>-<YYYYMMDD>.md`
 After saving, respond:
 
 ✅ Research doc created
-File: `specs/research-...md`
-Next: run `/design_from_research specs/research-...md`
+Feature: `<feature>`
+File: `specs/<feature>/research.md`
+Next: run `/design_from_research --feature <feature>`

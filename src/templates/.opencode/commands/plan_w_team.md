@@ -1,13 +1,21 @@
 ---
-description: Create a validated implementation plan (planning only) in specs/. Consumes RPI artifacts when available.
-argument-hint: "<user prompt> | include refs: research/design/outline paths"
+description: Create a validated implementation plan (planning only). Saves to specs/<feature>/plan.md
+argument-hint: "<prompt> --feature <feature-name>"
 allowed-tools: Read, Write, Glob, Grep, Bash(git status:*), Bash(git diff:*), Bash(git log:*)
 model: opus
 ---
 
 # Plan with Team (RPI Step 5)
 
-Create a validated implementation plan for: **$ARGUMENTS**
+Create implementation plan for: **$ARGUMENTS**
+
+## Parse Arguments
+
+Extract from `$ARGUMENTS`:
+- **prompt**: the user's request (everything before `--feature`)
+- **feature**: the feature folder name (after `--feature`)
+
+If `--feature` is not provided, ask the user for it and stop.
 
 ---
 
@@ -20,31 +28,27 @@ You must NOT:
 
 You MUST:
 - Analyze request
-- Use RPI artifacts if available
+- Load RPI artifacts from `specs/<feature>/`
 - Create a detailed plan with tasks + acceptance criteria
-- Save plan to `specs/`
+- Save plan to `specs/<feature>/plan.md`
 
 ---
 
-## Recommended Inputs (RPI artifacts)
+## Load RPI Artifacts
 
-If available, include references in your plan:
+Read from `specs/<feature>/`:
+- `rq.md` (research questions)
+- `research.md` (research answers)
+- `design.md` (design options)
+- `outline.md` (phase outline)
 
-- Research: `specs/research-*.md`
-- Design: `specs/design-*.md`
-- Outline: `specs/outline-*.md`
-
-If they do NOT exist (small/simple task), explicitly state that RPI was skipped and why.
+If any are missing, note which ones and proceed with available context.
 
 ---
 
 ## Workflow
 
 ### 1) Context Gathering (read-only)
-Read relevant files to understand:
-- existing patterns and conventions
-- dependencies and constraints
-
 Repo status:
 !`git status -sb`
 
@@ -59,9 +63,8 @@ Create a plan document with these REQUIRED sections:
 
 ## Inputs
 - User Prompt: [what was requested]
-- Research Doc: [path or "skipped"]
-- Design Doc: [path or "skipped"]
-- Outline Doc: [path or "skipped"]
+- Feature: [feature name]
+- RPI Artifacts: [list which files were loaded]
 
 ## Goal
 [One sentence describing the outcome]
@@ -99,11 +102,10 @@ Create a plan document with these REQUIRED sections:
   **Mitigation**: [How to handle]
 
 ## Verification Strategy
-- [ ] Run repo verification gate (prefer `pnpm verify` or `bun lint/typecheck/test`)
+- [ ] Run repo verification gate
 - [ ] Unit tests pass
 - [ ] Typecheck passes
 - [ ] Lint passes
-- [ ] E2E: [skipped | conditional | required] + rationale
 
 ## Open Questions
 - [Question 1]
@@ -119,27 +121,20 @@ Before saving, verify:
 - [ ] Each task has acceptance criteria
 - [ ] Verification strategy exists
 
-### 4) Save Plan
+---
 
-Save to: `specs/plan-[slug]-[YYYYMMDD].md`
+## Save
 
-Example: `specs/plan-add-auth-20260203.md`
+Save to: `specs/<feature>/plan.md`
 
 ---
 
-## Output
+## Report
 
-After creating the plan, summarize:
+After creating the plan, respond:
 
-```
-## Plan Created
-
-File: specs/plan-[name].md
+✅ Plan created
+Feature: `<feature>`
+File: `specs/<feature>/plan.md`
 Tasks: [count] tasks defined
-Ready for: Use /build_from_plan to execute
-
-Task Summary:
-1. [Task 1 name] (Task ID)
-2. [Task 2 name] (Task ID)
-...
-```
+Next: run `/build_from_plan --feature <feature>`

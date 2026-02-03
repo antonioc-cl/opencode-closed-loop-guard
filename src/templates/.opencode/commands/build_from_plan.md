@@ -1,27 +1,37 @@
 ---
-description: Execute a plan from specs/*.md. Stop on failure. Validate continuously. Do not claim done until gate passes.
-argument-hint: "specs/plan-<slug>-<date>.md"
+description: Execute a plan from specs/<feature>/plan.md. Stop on failure. Validate continuously.
+argument-hint: "--feature <feature-name>"
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash
 ---
 
 # Build from Plan
 
-Execute the plan at: **$ARGUMENTS**
+Execute the plan for feature: **$ARGUMENTS**
 
-If no path provided, look for the most recent plan in `specs/`.
+## Parse Arguments
+
+Extract `--feature <name>` from `$ARGUMENTS`.
+
+If not provided, ask the user for the feature name and stop.
+
+---
+
+## Load Plan
+
+Read the plan file at: `specs/<feature>/plan.md`
+
+If the file doesn't exist, tell the user to run `/plan_w_team` first.
+
+Parse:
+- tasks list + dependencies
+- acceptance criteria per task
+- verification strategy
 
 ---
 
 ## Workflow
 
-### 1) Load Plan
-Read the plan file and parse:
-- tasks list + dependencies
-- acceptance criteria per task
-- verification strategy
-- RPI inputs (research/design/outline)
-
-### 2) Execute Tasks (dependency order)
+### Execute Tasks (dependency order)
 For each task:
 
 #### a) Pre-check
@@ -44,14 +54,10 @@ After changes run:
 - Mark PASS/FAIL for each criterion
 - If FAIL: fix before proceeding
 
-### 3) Final Verification (must be green)
+### Final Verification (must be green)
 Run the plan's Verification Strategy.
 
-**Do not claim completion** until you see validation is green.
-
-If a guard enforces a gate:
-- If it fails, fix issues and retry
-- Repeat until green
+**Do not claim completion** until validation is green.
 
 ---
 
@@ -84,12 +90,12 @@ Final summary:
 ```
 ## Build Summary
 
-Plan: [plan file]
+Feature: <feature>
+Plan: specs/<feature>/plan.md
 Tasks: X/Y completed
 Status: SUCCESS | PARTIAL | FAILED
 
 Validation:
-- [command] PASS/FAIL
 - [command] PASS/FAIL
 
 Remaining Issues:

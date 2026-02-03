@@ -1,13 +1,25 @@
 ---
-description: Generate objective research questions (no solutions). Saves to specs/rq-<topic>-<date>.md
-argument-hint: "<topic / problem statement>"
-allowed-tools: Read, Write, Glob, Grep, Bash(git status:*), Bash(ls:*)
+description: Generate objective research questions (no solutions). Saves to specs/<feature>/rq.md
+argument-hint: "<topic> --feature <feature-name>"
+allowed-tools: Read, Write, Glob, Grep, Bash(git status:*), Bash(ls:*), Bash(mkdir:*)
 model: opus
 ---
 
 # Research Questions (RPI Step 1)
 
 Generate **objective questions only** for: **$ARGUMENTS**
+
+## Parse Arguments
+
+Extract from `$ARGUMENTS`:
+- **topic**: the problem statement (everything before `--feature`)
+- **feature**: the feature folder name (after `--feature`, kebab-case)
+
+If `--feature` is not provided, derive it from the topic (kebab-case, max 3 words).
+
+Example: `"add user authentication" --feature user-auth`
+- topic = "add user authentication"
+- feature = "user-auth"
 
 If no topic is provided, ask the user for it and stop.
 
@@ -72,7 +84,8 @@ Top-level structure:
 
 ## Save
 
-Save as: `specs/rq-<kebab-topic>-<YYYYMMDD>.md`
+1. Create folder: `specs/<feature>/`
+2. Save as: `specs/<feature>/rq.md`
 
 ---
 
@@ -81,5 +94,6 @@ Save as: `specs/rq-<kebab-topic>-<YYYYMMDD>.md`
 After saving, respond:
 
 ✅ Research questions created
-File: `specs/rq-...md`
-Next: run `/research_from_questions specs/rq-...md`
+Feature: `<feature>`
+File: `specs/<feature>/rq.md`
+Next: run `/research_from_questions --feature <feature>`

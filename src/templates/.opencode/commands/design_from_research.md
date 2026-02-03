@@ -1,15 +1,27 @@
 ---
-description: Produce design options + tradeoffs from a research doc. Saves to specs/design-<topic>-<date>.md
-argument-hint: "specs/research-<topic>-<date>.md"
+description: Produce design options + tradeoffs from a research doc. Saves to specs/<feature>/design.md
+argument-hint: "--feature <feature-name>"
 allowed-tools: Read, Write, Glob
 model: opus
 ---
 
 # Design From Research (RPI Step 3)
 
-Use the research doc at: **$ARGUMENTS**
+Create design options for feature: **$ARGUMENTS**
 
-If no path is provided, ask the user for it and stop.
+## Parse Arguments
+
+Extract `--feature <name>` from `$ARGUMENTS`.
+
+If not provided, ask the user for the feature name and stop.
+
+---
+
+## Load Research
+
+Read the research file at: `specs/<feature>/research.md`
+
+If the file doesn't exist, tell the user to run `/research_from_questions` first.
 
 ---
 
@@ -18,12 +30,6 @@ If no path is provided, ask the user for it and stop.
 - You may propose options and recommend one with reasoning.
 - You must remain consistent with the research doc facts.
 - If research is insufficient, request more research questions.
-
----
-
-## Load Research
-
-Read the research file at: `$ARGUMENTS`
 
 ---
 
@@ -74,7 +80,7 @@ Read the research file at: `$ARGUMENTS`
 
 ## Save
 
-Save as: `specs/design-<kebab-topic>-<YYYYMMDD>.md`
+Save as: `specs/<feature>/design.md`
 
 ---
 
@@ -83,5 +89,6 @@ Save as: `specs/design-<kebab-topic>-<YYYYMMDD>.md`
 After saving, respond:
 
 ✅ Design doc created
-File: `specs/design-...md`
-Next: run `/outline_from_design specs/design-...md`
+Feature: `<feature>`
+File: `specs/<feature>/design.md`
+Next: run `/outline_from_design --feature <feature>`
