@@ -1,0 +1,47 @@
+{
+  "name": "opencode-closed-loop-guard",
+  "version": "0.1.0",
+  "description": "Closed-loop guard plugin for OpenCode (plan → build → validate → block until green)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antonioc-cl/opencode-closed-loop-guard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/antonioc-cl/opencode-closed-loop-guard/issues"
+  },
+  "homepage": "https://github.com/antonioc-cl/opencode-closed-loop-guard#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "agentic",
+    "validation",
+    "guardrails",
+    "ai-coding"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "execa": "^9.4.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2"
+  }
+}
