@@ -1,7 +1,7 @@
 {
   "name": "opencode-closed-loop-guard",
-  "version": "0.1.3",
-  "description": "Closed-loop guard plugin for OpenCode (plan → build → validate → block until green)",
+  "version": "0.2.0",
+  "description": "Closed-loop guard plugin for OpenCode with RPI workflow (research → plan → implement → validate)",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -33,7 +33,9 @@
     "agentic",
     "validation",
     "guardrails",
-    "ai-coding"
+    "ai-coding",
+    "rpi-workflow",
+    "claude-code"
   ],
   "engines": {
     "node": ">=18"

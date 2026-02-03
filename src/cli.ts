@@ -8,10 +8,15 @@ import { runInit } from "./init.js";
 const USAGE = `Usage: opencode-closed-loop-guard init [--force]
        opencode-closed-loop-guard --help
 
-  init        Interactively scaffold .opencode/commands, .opencode/validators,
-              .opencode/closed-loop-guard.json, specs/, and optionally patch
-              opencode.json and append .gitignore. Non-TTY: scaffolds core only
-              (commands, config, validators, specs).
+  init        Interactively scaffold:
+              - RPI workflow commands (research_questions, design_from_research, etc.)
+              - Team agents (researcher, builder, validator)
+              - Validators (lint, typecheck, unit, e2e, verify)
+              - Config (.opencode/closed-loop-guard.json)
+              - Specs folder (specs/)
+
+              Optionally patch opencode.json and append .gitignore.
+              Non-TTY: scaffolds commands, agents, config, validators, specs.
 
   --force     Overwrite existing files (backup as .bak.<timestamp>).
   -h, --help  Show this help.
