@@ -265,7 +265,7 @@ It’s useful for experimentation, but **npm is recommended** for long-term use.
 
 ## 🛠️ Scaffolding with `init`
 
-Run an interactive initializer that optionally scaffolds the closed-loop kit into the current repo:
+Run an interactive initializer that scaffolds the closed-loop kit:
 
 ```bash
 npx opencode-closed-loop-guard init
@@ -273,18 +273,21 @@ npx opencode-closed-loop-guard init
 opencode-closed-loop-guard init
 ```
 
-You can choose what to scaffold (multi-select):
+**Where to install?** You are asked first:
 
-- **Commands** — `.opencode/commands/plan_w_team.md`, `.opencode/commands/build_from_plan.md`
-- **Project config** — `.opencode/closed-loop-guard.json`
-- **Validators** — `.opencode/validators/*` (detect-runner, verify, lint, typecheck, unit, e2e, format)
-- **Specs folder** — `specs/` (plan output directory)
-- **Patch repo `opencode.json`** (optional) — add or merge the plugin into the project’s `opencode.json`
-- **Append `.gitignore`** (optional) — add `.opencode/logs/` and `.opencode/state/`
+- **1. Global (~/.config/opencode)** [default] — Commands, validators, config, and specs are installed under `~/.config/opencode`. Patching `opencode.json` updates `~/.config/opencode/opencode.json`. No files are written to the current repo (except optional `.gitignore` append).
+- **2. Current repo** — Same structure is written under the project root (`.opencode/`, `specs/`), and patching `opencode.json` updates the project’s `opencode.json`.
 
-Use `--force` to overwrite existing files (creates `.bak.<timestamp>` backups). Non-TTY runs default to scaffolding commands, config, validators, and specs only (no patch, no gitignore).
+Then choose what to scaffold (multi-select):
 
-The plugin must still be registered in global `~/.config/opencode/opencode.json` unless you choose to patch the project’s `opencode.json` during init.
+- **Commands** — `plan_w_team.md`, `build_from_plan.md` (under install target)
+- **Project config** — `closed-loop-guard.json` (under install target)
+- **Validators** — detect-runner, verify, lint, typecheck, unit, e2e, format (under install target)
+- **Specs folder** — `specs/` (plan output directory, under install target)
+- **Patch opencode.json** (optional) — add or merge the plugin into the install target’s `opencode.json` (global or repo)
+- **Append `.gitignore`** (optional) — add `.opencode/logs/` and `.opencode/state/` to the **current repo** (only relevant when using global install)
+
+Use `--force` to overwrite existing files (creates `.bak.<timestamp>` backups). Non-TTY runs default to **global** install and scaffold commands, config, validators, and specs only (no patch, no gitignore).
 
 ---
 

@@ -3,3 +3,6 @@ dist/
 .opencode/
 *.tgz
 package-lock.json
+# OpenCode closed-loop guard
+.opencode/logs/
+.opencode/state/

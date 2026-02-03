@@ -1,12 +1,32 @@
 /**
  * Interactive init: scaffold .opencode/commands, validators, config, specs, optional opencode.json and .gitignore.
+ * Default install target: ~/.config/opencode (global). Optional: current repo.
  */
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import readline from "node:readline";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+const GLOBAL_CONFIG_DIR = path.join(os.homedir(), ".config", "opencode");
+
+/** OpenCode global config dir has same structure as .opencode, so contents go directly under it (no .opencode/ prefix). */
+function relPathForBase(rel: string, baseDir: string): string {
+  if (baseDir === GLOBAL_CONFIG_DIR && rel.startsWith(".opencode/")) {
+    return rel.slice(".opencode/".length);
+  }
+  return rel;
+}
+
+function toDisplayPath(baseDir: string, rel: string): string {
+  const effective = relPathForBase(rel, baseDir);
+  if (baseDir === GLOBAL_CONFIG_DIR) {
+    return path.join("~", ".config", "opencode", effective);
+  }
+  return path.join(baseDir, effective);
+}
 
 export type InitCategory =
   | "commands"
@@ -46,7 +66,7 @@ const INIT_OPTIONS: { id: InitCategory; label: string; files: string[] }[] = [
   { id: "specs", label: "Specs folder (specs/)", files: ["specs/.gitkeep"] },
   {
     id: "patchOpencode",
-    label: "Patch repo opencode.json (optional)",
+    label: "Patch opencode.json (add plugin to install target) (optional)",
     files: [],
   },
   { id: "gitignore", label: "Append .gitignore entries (optional)", files: [] },
@@ -71,6 +91,24 @@ function question(rl: readline.Interface, prompt: string): Promise<string> {
   return new Promise((resolve) => {
     rl.question(prompt, (answer) => resolve(answer.trim()));
   });
+}
+
+/** Returns install base directory: ~/.config/opencode (default) or cwd. */
+async function promptInstallTarget(): Promise<string> {
+  if (!isTTY()) {
+    return GLOBAL_CONFIG_DIR;
+  }
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+  process.stdout.write("Where to install?\n");
+  process.stdout.write("  1. Global (~/.config/opencode) [default]\n");
+  process.stdout.write("  2. Current repo (.)\n");
+  const raw = await question(rl, "Choice (1 or 2): ");
+  rl.close();
+  const choice = raw.trim() || "1";
+  return choice === "2" ? process.cwd() : GLOBAL_CONFIG_DIR;
 }
 
 async function promptSelection(_force: boolean): Promise<InitCategory[]> {
@@ -106,7 +144,7 @@ async function promptSelection(_force: boolean): Promise<InitCategory[]> {
 
 function collectFilesToWrite(
   templateDir: string,
-  cwd: string,
+  baseDir: string,
   selected: InitCategory[],
   force: boolean
 ): {
@@ -125,7 +163,7 @@ function collectFilesToWrite(
   for (const cat of selected) {
     if (cat === "patchOpencode") {
       patchOpencode = true;
-      const p = path.join(cwd, "opencode.json");
+      const p = path.join(baseDir, "opencode.json");
       if (fs.existsSync(p)) toOverwrite.push("opencode.json (merge)");
       else toCreate.push("opencode.json");
       continue;
@@ -138,7 +176,8 @@ function collectFilesToWrite(
     const opt = INIT_OPTIONS.find((o) => o.id === cat);
     if (!opt || opt.files.length === 0) continue;
     for (const rel of opt.files) {
-      const dest = path.join(cwd, rel);
+      const destRel = relPathForBase(rel, baseDir);
+      const dest = path.join(baseDir, destRel);
       const src = path.join(templateDir, rel);
       if (!fs.existsSync(src)) continue;
       if (fs.existsSync(dest)) {
@@ -156,19 +195,23 @@ function collectFilesToWrite(
 async function confirmWrite(
   toCreate: string[],
   toSkip: string[],
-  toOverwrite: string[]
+  toOverwrite: string[],
+  baseDir: string
 ): Promise<boolean> {
   if (toCreate.length > 0) {
     process.stdout.write("Will create:\n");
-    for (const f of toCreate) process.stdout.write(`  + ${f}\n`);
+    for (const f of toCreate)
+      process.stdout.write(`  + ${toDisplayPath(baseDir, f)}\n`);
   }
   if (toOverwrite.length > 0) {
     process.stdout.write("Will overwrite (--force):\n");
-    for (const f of toOverwrite) process.stdout.write(`  ~ ${f}\n`);
+    for (const f of toOverwrite)
+      process.stdout.write(`  ~ ${toDisplayPath(baseDir, f)}\n`);
   }
   if (toSkip.length > 0) {
     process.stdout.write("Will skip (already exist):\n");
-    for (const f of toSkip) process.stdout.write(`  - ${f}\n`);
+    for (const f of toSkip)
+      process.stdout.write(`  - ${toDisplayPath(baseDir, f)}\n`);
   }
   if (toCreate.length === 0 && toOverwrite.length === 0) {
     process.stdout.write("Nothing to write.\n");
@@ -189,12 +232,13 @@ async function confirmWrite(
 
 function copyFile(
   templateDir: string,
-  cwd: string,
+  baseDir: string,
   rel: string,
   force: boolean
 ): void {
   const src = path.join(templateDir, rel);
-  const dest = path.join(cwd, rel);
+  const destRel = relPathForBase(rel, baseDir);
+  const dest = path.join(baseDir, destRel);
   if (!fs.existsSync(src)) return;
   if (fs.existsSync(dest) && !force) return;
   if (fs.existsSync(dest) && force) {
@@ -205,8 +249,8 @@ function copyFile(
   fs.copyFileSync(src, dest);
 }
 
-function applyPatchOpencode(cwd: string): void {
-  const p = path.join(cwd, "opencode.json");
+function applyPatchOpencode(baseDir: string): void {
+  const p = path.join(baseDir, "opencode.json");
   let obj: { plugin?: string[] } = {};
   if (fs.existsSync(p)) {
     const raw = fs.readFileSync(p, "utf-8");
@@ -239,8 +283,10 @@ function applyAppendGitignore(templateDir: string, cwd: string): void {
   fs.writeFileSync(gitignorePath, existing + sep + content);
 }
 
-function chmodValidators(cwd: string): void {
-  const validatorsDir = path.join(cwd, ".opencode", "validators");
+function chmodValidators(baseDir: string): void {
+  const validatorsRel =
+    baseDir === GLOBAL_CONFIG_DIR ? "validators" : ".opencode/validators";
+  const validatorsDir = path.join(baseDir, validatorsRel);
   if (!fs.existsSync(validatorsDir)) return;
   for (const name of fs.readdirSync(validatorsDir)) {
     if (name.endsWith(".sh")) {
@@ -259,19 +305,20 @@ export async function runInit(opts: { force: boolean }): Promise<void> {
     process.exit(1);
   }
 
-  const cwd = process.cwd();
+  const baseDir = await promptInstallTarget();
   const selected = await promptSelection(opts.force);
   const { toCreate, toSkip, toOverwrite, patchOpencode, appendGitignore } =
-    collectFilesToWrite(templateDir, cwd, selected, opts.force);
+    collectFilesToWrite(templateDir, baseDir, selected, opts.force);
 
-  const ok = await confirmWrite(toCreate, toSkip, toOverwrite);
+  const ok = await confirmWrite(toCreate, toSkip, toOverwrite, baseDir);
   if (!ok) {
     process.exit(0);
   }
 
+  const cwd = process.cwd();
   for (const cat of selected) {
     if (cat === "patchOpencode" && patchOpencode) {
-      applyPatchOpencode(cwd);
+      applyPatchOpencode(baseDir);
       continue;
     }
     if (cat === "gitignore" && appendGitignore) {
@@ -281,16 +328,20 @@ export async function runInit(opts: { force: boolean }): Promise<void> {
     const opt = INIT_OPTIONS.find((o) => o.id === cat);
     if (!opt) continue;
     for (const rel of opt.files) {
-      copyFile(templateDir, cwd, rel, opts.force);
+      copyFile(templateDir, baseDir, rel, opts.force);
     }
   }
 
-  chmodValidators(cwd);
+  chmodValidators(baseDir);
 
   process.stdout.write("\nNext steps:\n");
   process.stdout.write(
     '  /plan_w_team "<user prompt>" "<orchestration prompt (optional)>"\n'
   );
   process.stdout.write("  /build_from_plan specs/<file>.md\n");
-  process.stdout.write("  Logs: .opencode/logs\n");
+  const logsDir =
+    baseDir === GLOBAL_CONFIG_DIR
+      ? "~/.config/opencode/logs"
+      : ".opencode/logs";
+  process.stdout.write(`  Logs: ${logsDir}\n`);
 }
