@@ -1,0 +1,3 @@
+# OpenCode closed-loop guard
+.opencode/logs/
+.opencode/state/
