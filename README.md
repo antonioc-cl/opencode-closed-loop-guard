@@ -32,6 +32,146 @@ The goal of this plugin is to bring the same **closed-loop philosophy** (plan �
 
 ---
 
+## 🔧 Supported Toolchains & Validation Strategy
+
+`opencode-closed-loop-guard` is designed to work across **modern JavaScript/TypeScript monorepos** and does **not impose a single toolchain**.
+
+Instead, it **detects and respects what your repository already uses**, aligning local validation with CI.
+
+---
+
+### ✅ Supported Package Managers
+
+The plugin automatically detects the package manager:
+
+| Package Manager | Detection                                                  |
+| --------------- | ---------------------------------------------------------- |
+| **bun**         | `packageManager: "bun@…"` in `package.json` or `bun.lockb` |
+| **pnpm**        | fallback if bun is not detected                            |
+
+---
+
+### ✅ Supported Linters / Formatters
+
+The plugin does **not** bundle linters.
+It runs **your repo's own scripts** or standard commands.
+
+| Tool         | Detection                                    |
+| ------------ | -------------------------------------------- |
+| **Biome**    | `biome.json` or `biome.jsonc` present        |
+| **ESLint**   | `eslint.config.*` or `.eslintrc*` present    |
+| **Prettier** | `prettier` config or `format` script present |
+
+**Priority order**
+
+1. Biome (if present)
+2. ESLint / Prettier (via scripts)
+3. No formatting step if none detected
+
+---
+
+### ✅ Type Checking
+
+Type checking is performed via **existing repo scripts**:
+
+| Script         | Used                             |
+| -------------- | -------------------------------- |
+| `typecheck`    | preferred                        |
+| `tsc --noEmit` | fallback (if TypeScript project) |
+
+---
+
+### ✅ Testing Strategy
+
+#### Unit Tests (default, always enforced)
+
+| Repo Type | Command                                                                        |
+| --------- | ------------------------------------------------------------------------------ |
+| pnpm      | `pnpm -s verify` (preferred) → fallback to `lint + typecheck + test:unit/test` |
+| bun       | `bun run lint && bun run typecheck && bun run test`                            |
+
+This matches the philosophy:
+
+> **"The gate should match CI."**
+
+#### E2E Tests (optional / conditional)
+
+E2E tests are **not run by default** to avoid flakiness and slow feedback loops.
+
+They are executed **only if one of the following is true**:
+
+- The plan explicitly requires E2E validation
+- Touched files match configured critical patterns (auth, payments, routing, etc.)
+- The user explicitly triggers E2E (via command or config)
+
+Supported E2E runners (if present):
+
+- `pnpm test:e2e` / `pnpm e2e`
+- `bun run e2e`
+- Playwright, Cucumber, etc. (via your scripts)
+
+---
+
+### ⚙️ Configuration Example
+
+You can fine-tune behavior per project using:
+
+```text
+.opencode/closed-loop-guard.json
+```
+
+Example:
+
+```json
+{
+  "protectedBranches": ["main", "master"],
+  "maxCycles": 5,
+  "logDir": ".opencode/logs",
+  "e2e": {
+    "mode": "conditional",
+    "triggers": ["auth", "payment", "checkout", "router"]
+  }
+}
+```
+
+---
+
+### 🧠 Design Philosophy
+
+- **No duplicated CI logic**
+  The plugin runs _your_ scripts, not its own opinionated pipeline.
+
+- **No enforced tools**
+  ESLint, Biome, Prettier, Vitest, Playwright, Cucumber — all are supported _if you already use them_.
+
+- **Fast by default, strict when needed**
+  Unit + static checks always gate completion.
+  E2E is opt-in or context-driven.
+
+---
+
+### ❓ What if my repo uses something else?
+
+If your repo has:
+
+- different script names
+- custom CI entrypoints
+- non-JS tooling
+
+👉 Add a `verify` script and the plugin will use it automatically.
+
+Example:
+
+```json
+{
+  "scripts": {
+    "verify": "my-custom-validation-command"
+  }
+}
+```
+
+---
+
 ## 🔌 Enabling the Plugin in OpenCode
 
 ### Important
