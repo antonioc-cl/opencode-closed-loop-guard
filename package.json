@@ -1,6 +1,6 @@
 {
   "name": "opencode-closed-loop-guard",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Closed-loop guard plugin for OpenCode with RPI workflow (research → plan → implement → validate)",
   "license": "MIT",
   "repository": {
