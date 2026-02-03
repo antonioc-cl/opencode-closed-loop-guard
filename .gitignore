@@ -1,8 +1,12 @@
 node_modules/
 dist/
-.opencode/
 *.tgz
 package-lock.json
-# OpenCode closed-loop guard
+
+# OpenCode runtime (not templates)
+/.opencode/
 .opencode/logs/
 .opencode/state/
+
+# Keep templates tracked
+!src/templates/.opencode/

@@ -30,6 +30,7 @@ function toDisplayPath(baseDir: string, rel: string): string {
 
 export type InitCategory =
   | "commands"
+  | "agents"
   | "config"
   | "validators"
   | "specs"
@@ -41,8 +42,21 @@ const INIT_OPTIONS: { id: InitCategory; label: string; files: string[] }[] = [
     id: "commands",
     label: "Commands (.opencode/commands/*)",
     files: [
+      ".opencode/commands/research_questions.md",
+      ".opencode/commands/research_from_questions.md",
+      ".opencode/commands/design_from_research.md",
+      ".opencode/commands/outline_from_design.md",
       ".opencode/commands/plan_w_team.md",
       ".opencode/commands/build_from_plan.md",
+    ],
+  },
+  {
+    id: "agents",
+    label: "Agents (.opencode/agents/team/*)",
+    files: [
+      ".opencode/agents/team/researcher.md",
+      ".opencode/agents/team/builder.md",
+      ".opencode/agents/team/validator.md",
     ],
   },
   {
@@ -74,6 +88,7 @@ const INIT_OPTIONS: { id: InitCategory; label: string; files: string[] }[] = [
 
 const DEFAULT_SELECTION: InitCategory[] = [
   "commands",
+  "agents",
   "config",
   "validators",
   "specs",
@@ -125,7 +140,7 @@ async function promptSelection(_force: boolean): Promise<InitCategory[]> {
     process.stdout.write(`  ${i + 1}. ${INIT_OPTIONS[i].label}\n`);
   }
   process.stdout.write(
-    "Enter comma-separated numbers (e.g. 1,2,3,4,5). Default: 1,2,3,4\n"
+    "Enter comma-separated numbers (e.g. 1,2,3,4,5,6). Default: 1,2,3,4,5\n"
   );
   const raw = await question(rl, "Selection: ");
   rl.close();

@@ -6,7 +6,12 @@ A deterministic **closed-loop guard plugin** for OpenCode.
 
 It enforces:
 
-**Plan → Build → Validate → Repeat until green**
+**Research → Plan → Implement → Validate → Repeat until green**
+
+The RPI (Research-Plan-Implement) workflow ensures:
+- Research before planning (gather facts, not opinions)
+- Planning before coding (think before you act)
+- Validation before completion (prove it works)
 
 ## Inspiration & Credits
 
@@ -29,6 +34,57 @@ The goal of this plugin is to bring the same **closed-loop philosophy** (plan �
 - ⛔ Stop gate (cannot finish until validation passes)
 - 🔁 Automatic retry via prompt injection
 - 📜 JSONL traceability logs
+- 📋 RPI workflow commands (Research → Plan → Implement)
+- 👥 Team agents (researcher, builder, validator)
+
+---
+
+## 📋 RPI Workflow (Research → Plan → Implement)
+
+The plugin includes a structured workflow that enforces thinking before coding:
+
+### Commands
+
+| Command | Purpose | Output |
+|---------|---------|--------|
+| `/research_questions` | Generate objective questions (no solutions) | `specs/rq-<topic>-<date>.md` |
+| `/research_from_questions` | Answer questions with facts + evidence | `specs/research-<topic>-<date>.md` |
+| `/design_from_research` | Propose options + tradeoffs | `specs/design-<topic>-<date>.md` |
+| `/outline_from_design` | Create phase outline (reorderable) | `specs/outline-<topic>-<date>.md` |
+| `/plan_w_team` | Create detailed implementation plan | `specs/plan-<slug>-<date>.md` |
+| `/build_from_plan` | Execute plan with validation | Task completion |
+
+### Agents
+
+| Agent | Role | Tools |
+|-------|------|-------|
+| `researcher` | Read-only fact-finding. Questions → answers with evidence. | No write tools |
+| `builder` | Implements code from plans. One task at a time. | All tools |
+| `validator` | Read-only verification. Reports PASS/FAIL. | No write tools |
+
+### Workflow Example
+
+```bash
+# Step 1: Generate questions about the problem
+/research_questions "add user authentication"
+
+# Step 2: Answer questions with codebase evidence
+/research_from_questions specs/rq-user-auth-20260203.md
+
+# Step 3: Design options and tradeoffs
+/design_from_research specs/research-user-auth-20260203.md
+
+# Step 4: Create phase outline
+/outline_from_design specs/design-user-auth-20260203.md
+
+# Step 5: Create implementation plan (references RPI artifacts)
+/plan_w_team "add user authentication"
+
+# Step 6: Execute with validation gate
+/build_from_plan specs/plan-user-auth-20260203.md
+```
+
+For simple tasks, you can skip directly to `/plan_w_team` — the plan will note that RPI was skipped.
 
 ---
 
@@ -280,14 +336,15 @@ opencode-closed-loop-guard init
 
 Then choose what to scaffold (multi-select):
 
-- **Commands** — `plan_w_team.md`, `build_from_plan.md` (under install target)
+- **Commands** — RPI workflow commands: `research_questions.md`, `research_from_questions.md`, `design_from_research.md`, `outline_from_design.md`, `plan_w_team.md`, `build_from_plan.md` (under install target)
+- **Agents** — Team agents: `researcher.md`, `builder.md`, `validator.md` (under install target)
 - **Project config** — `closed-loop-guard.json` (under install target)
 - **Validators** — detect-runner, verify, lint, typecheck, unit, e2e, format (under install target)
 - **Specs folder** — `specs/` (plan output directory, under install target)
-- **Patch opencode.json** (optional) — add or merge the plugin into the install target’s `opencode.json` (global or repo)
+- **Patch opencode.json** (optional) — add or merge the plugin into the install target's `opencode.json` (global or repo)
 - **Append `.gitignore`** (optional) — add `.opencode/logs/` and `.opencode/state/` to the **current repo** (only relevant when using global install)
 
-Use `--force` to overwrite existing files (creates `.bak.<timestamp>` backups). Non-TTY runs default to **global** install and scaffold commands, config, validators, and specs only (no patch, no gitignore).
+Use `--force` to overwrite existing files (creates `.bak.<timestamp>` backups). Non-TTY runs default to **global** install and scaffold commands, agents, config, validators, and specs only (no patch, no gitignore).
 
 ---
 
@@ -362,7 +419,7 @@ npm pack opencode-closed-loop-guard@latest
 tar -tf opencode-closed-loop-guard-*.tgz | head -80
 ```
 
-You should see `package/dist/index.js`, `package/dist/cli.js`, and `package/dist/templates/**` (including `.opencode/commands/*`, `.opencode/validators/*.sh`). After running `init` in a repo, `.opencode/validators/*.sh` are executable.
+You should see `package/dist/index.js`, `package/dist/cli.js`, and `package/dist/templates/**` (including `.opencode/commands/*`, `.opencode/agents/team/*`, `.opencode/validators/*.sh`). After running `init` in a repo, `.opencode/validators/*.sh` are executable.
 
 ---
 

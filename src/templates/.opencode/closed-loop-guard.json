@@ -1,0 +1,19 @@
+{
+  "protectedBranches": ["main", "master"],
+  "maxCycles": 5,
+  "logDir": ".opencode/logs",
+  "stateDir": ".opencode/state",
+  "e2e": {
+    "mode": "conditional",
+    "triggers": [
+      "auth",
+      "payment",
+      "checkout",
+      "router",
+      "migration",
+      "db",
+      "session",
+      "login"
+    ]
+  }
+}
