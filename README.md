@@ -13,7 +13,7 @@ This project is inspired by:
 - **Claude Code Hooks** — the native hook-based control plane that enables deterministic, agentic coding workflows in Claude Code.  
   https://code.claude.com/docs/en/hooks
 
-- **Disler’s Agentic Workflows & Claude Code Hooks Mastery** — a rigorous, anti-hype approach to agentic engineering using planning meta-prompts, builder/validator roles, and self-validating closed loops.  
+- **IndyDevDan's Agentic Workflows & Claude Code Hooks Mastery** — a rigorous, anti-hype approach to agentic engineering using planning meta-prompts, builder/validator roles, and self-validating closed loops.  
   https://github.com/disler/claude-code-hooks-mastery
 
 The goal of this plugin is to bring the same **closed-loop philosophy** (plan → build → validate → block until green) into **OpenCode**, using its plugin event system.
