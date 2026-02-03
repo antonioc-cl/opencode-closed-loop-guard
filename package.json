@@ -39,9 +39,11 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "execa": "^9.4.0"
+    "execa": "^9.4.0",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
+    "@types/node": "^22.10.0",
     "typescript": "^5.7.2"
   }
 }
