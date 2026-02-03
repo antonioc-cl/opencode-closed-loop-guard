@@ -1,6 +1,6 @@
 {
   "name": "opencode-closed-loop-guard",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Closed-loop guard plugin for OpenCode (plan → build → validate → block until green)",
   "license": "MIT",
   "repository": {
